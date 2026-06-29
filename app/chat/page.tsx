@@ -10,7 +10,7 @@ import {
   Stethoscope, Brain, HeartPulse, X,
   AlertCircle, Menu, Trash2,
 } from "lucide-react";
-import { Stethoscope } from "lucide-react";
+
 // ─── Types ────────────────────────────────────────────────────
 interface Message {
   role: "user" | "assistant";
