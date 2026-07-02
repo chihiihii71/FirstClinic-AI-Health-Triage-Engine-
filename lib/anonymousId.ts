@@ -1,4 +1,4 @@
-const ANON_ID_KEY = "firstclinic_anon_id";
+const ANON_ID_KEY = "bourneit_anon_id";
 
 export function getAnonId(): string {
   if (typeof window === "undefined") return "server";

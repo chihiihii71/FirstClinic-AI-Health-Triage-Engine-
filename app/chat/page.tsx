@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image"; // Added Next.js Image import
 import { createClient } from "@/lib/supabase";
 import { getAnonId } from "@/lib/anonymousId";
 import {
@@ -336,12 +337,24 @@ export default function ChatPage() {
           sidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de]">
-          <Stethoscope size={20} className="text-teal-500" />
-          <span className="font-semibold text-gray-800 text-sm">
-            FirstClinic AI
-          </span>
+        {/* Logo and App Title - Updated for small sidebar sizing */}
+        <div className="flex flex-col px-4 py-3.5 border-b border-[#e5e4de]">
+          <div className="flex items-center gap-2.5">
+            <Image 
+              src="/logo.png" 
+              alt="BourneIt Logo" 
+              width={26} 
+              height={26} 
+              className="object-contain flex-shrink-0"
+              priority
+            />
+            <span className="font-bold text-gray-800 text-base tracking-tight">
+              BourneIt
+            </span>
+          </div>
+          <p className="text-[10px] font-medium text-gray-500 mt-1 pl-9 leading-tight">
+            Health Triage Engine
+          </p>
         </div>
 
         {/* New Chat */}
@@ -497,15 +510,28 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
-              <Stethoscope size={48} className="text-teal-400 mb-4" />
-              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                How can I help you?
+              {/* Logo and Welcome Area - Updated for large presentation sizing */}
+              <Image 
+                src="/logo.png" 
+                alt="BourneIt Logo" 
+                width={72} 
+                height={72} 
+                className="object-contain mb-4"
+                priority
+              />
+              <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                BourneIt
               </h2>
+              <p className="text-xs text-teal-600 font-medium uppercase tracking-wider mb-5">
+                Lifestyle Rebuilding & Health Triage
+              </p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                How can I help you today?
+              </h3>
               <p className="text-gray-500 text-sm max-w-md leading-relaxed">
-                I am FirstClinic AI, your personal health assistant. Ask me any
-                health question, or tap{" "}
+                I am your BourneIt clinical assistant. Ask me any health question, or tap{" "}
                 <span className="text-teal-600 font-medium">Add Vitals</span>{" "}
-                for a personalised risk assessment.
+                for a personalized risk assessment session.
               </p>
             </div>
           ) : (
@@ -521,7 +547,7 @@ export default function ChatPage() {
                     <div className="flex items-center gap-1.5 mb-2">
                       <Stethoscope size={14} className="text-teal-500" />
                       <span className="text-xs font-medium text-gray-500">
-                        FirstClinic AI
+                        BourneIt Assistant
                       </span>
                     </div>
                   )}
@@ -556,7 +582,7 @@ export default function ChatPage() {
                   <div className="flex items-center gap-1.5 mb-2">
                     <Stethoscope size={14} className="text-teal-500" />
                     <span className="text-xs font-medium text-gray-500">
-                      FirstClinic AI
+                      BourneIt Assistant
                     </span>
                   </div>
                   <div className="flex items-center gap-1 py-2">
