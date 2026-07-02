@@ -1,13 +1,13 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Image from "next/image"; // Added Next.js Image import
+import Image from "next/image";
 import { createClient } from "@/lib/supabase";
 import { getAnonId } from "@/lib/anonymousId";
 import {
   Plus, MessageSquare, Heart, Send,
   LogOut, Activity, Thermometer, Wind,
   Stethoscope, Brain, HeartPulse, X,
-  AlertCircle, Menu, Trash2,
+  AlertCircle, Menu, Trash2, ArrowRight,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────
@@ -43,9 +43,45 @@ const defaultVitals = {
 const getTimestamp = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+// ─── Welcome Screen (Window 1) ──────────────────────────────
+function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-[#f9f9f7] px-6">
+      <Image
+        src="/logo.png"
+        alt="BourneIt Logo"
+        width={88}
+        height={88}
+        className="object-contain mb-5"
+        priority
+      />
+      <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+        BourneIt
+      </h1>
+      <p className="text-xs text-teal-600 font-medium uppercase tracking-wider mt-2">
+        Health Triage Engine
+      </p>
+
+      <button
+        onClick={onContinue}
+        className="mt-8 flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white text-sm font-medium px-6 py-3 rounded-xl transition shadow-sm"
+      >
+        Continue
+        <ArrowRight size={15} />
+      </button>
+
+      <p className="text-xs text-gray-400 mt-6 max-w-xs text-center leading-relaxed">
+        For informational purposes only — always consult a qualified healthcare professional.
+      </p>
+    </div>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────
 export default function ChatPage() {
   const supabase = createClient();
+
+  const [showWelcome, setShowWelcome] = useState(true);
 
   // Anonymous ID
   const [anonId, setAnonId] = useState<string>("");
@@ -327,7 +363,12 @@ export default function ChatPage() {
   const generalChats = chats.filter((c) => c.type === "general");
   const signsChats = chats.filter((c) => c.type === "signs");
 
-  // ─── Render ──────────────────────────────────────────────────
+  // ─── Welcome screen (Window 1) ─────────────────────────────
+  if (showWelcome) {
+    return <WelcomeScreen onContinue={() => setShowWelcome(false)} />;
+  }
+
+  // ─── Main app (Window 2) ───────────────────────────────────
   return (
     <div className="flex h-screen bg-white font-sans overflow-hidden">
 
@@ -337,24 +378,19 @@ export default function ChatPage() {
           sidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
-        {/* Logo and App Title - Updated for small sidebar sizing */}
-        <div className="flex flex-col px-4 py-3.5 border-b border-[#e5e4de]">
-          <div className="flex items-center gap-2.5">
-            <Image 
-              src="/logo.png" 
-              alt="BourneIt Logo" 
-              width={26} 
-              height={26} 
-              className="object-contain flex-shrink-0"
-              priority
-            />
-            <span className="font-bold text-gray-800 text-base tracking-tight">
-              BourneIt
-            </span>
-          </div>
-          <p className="text-[10px] font-medium text-gray-500 mt-1 pl-9 leading-tight">
-            Health Triage Engine
-          </p>
+        {/* Logo and App Title only — no description here */}
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de]">
+          <Image
+            src="/logo.png"
+            alt="BourneIt Logo"
+            width={22}
+            height={22}
+            className="object-contain flex-shrink-0"
+            priority
+          />
+          <span className="font-semibold text-gray-800 text-sm">
+            BourneIt
+          </span>
         </div>
 
         {/* New Chat */}
@@ -509,29 +545,23 @@ export default function ChatPage() {
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
+            // Empty state — logo + welcome heading only, no repeated title/description
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
-              {/* Logo and Welcome Area - Updated for large presentation sizing */}
-              <Image 
-                src="/logo.png" 
-                alt="BourneIt Logo" 
-                width={72} 
-                height={72} 
+              <Image
+                src="/logo.png"
+                alt="BourneIt Logo"
+                width={56}
+                height={56}
                 className="object-contain mb-4"
                 priority
               />
-              <h2 className="text-2xl font-bold text-gray-800 mb-1">
-                BourneIt
-              </h2>
-              <p className="text-xs text-teal-600 font-medium uppercase tracking-wider mb-5">
-                Lifestyle Rebuilding & Health Triage
-              </p>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
                 How can I help you today?
-              </h3>
+              </h2>
               <p className="text-gray-500 text-sm max-w-md leading-relaxed">
-                I am your BourneIt clinical assistant. Ask me any health question, or tap{" "}
+                Ask me any health question, or tap{" "}
                 <span className="text-teal-600 font-medium">Add Vitals</span>{" "}
-                for a personalized risk assessment session.
+                for a personalised risk assessment.
               </p>
             </div>
           ) : (
