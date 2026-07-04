@@ -43,6 +43,27 @@ const defaultVitals = {
 const getTimestamp = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+// ─── Text Formatting Helper ───────────────────────────────────
+// Converts **bold text** from the AI into actual HTML bold text
+const formatMessage = (text: string) => {
+  if (!text) return null;
+  // Split the text by **something**
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  
+  return parts.map((part, index) => {
+    // If the part is wrapped in **, remove the asterisks and make it bold
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={index} className="font-semibold text-gray-900">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    // Otherwise, return standard text
+    return <span key={index}>{part}</span>;
+  });
+};
+
 // ─── Welcome Screen (Window 1) — big splash logo, 156px ─────
 function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
   return (
@@ -628,9 +649,9 @@ export default function ChatPage() {
                         Message flagged by safety filter
                       </div>
                     )}
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {msg.content}
-                    </p>
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {formatMessage(msg.content)}
+                    </div>
                   </div>
 
                   <span className="text-xs text-gray-400 mt-1.5">
@@ -645,8 +666,8 @@ export default function ChatPage() {
                   <Image
                     src="/logo.png"
                     alt="BourneIt"
-                    width={64}
-                    height={64}
+                    width={48}
+                    height={48}
                     className="object-contain animate-breathe"
                   />
                 </div>
