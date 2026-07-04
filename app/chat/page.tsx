@@ -304,48 +304,66 @@ export default function ChatPage() {
 
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
-      // ── FIXED: buffered SSE reader — prevents split-chunk data loss ──
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let fullText = "";
-      let buffer = "";
-
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "", timestamp: getTimestamp() },
       ]);
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+      const contentType = response.headers.get("content-type") || "";
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || ""; // keep incomplete trailing line for next read
+      // Check if the backend is returning standard JSON instead of a stream
+      if (contentType.includes("application/json")) {
+        const data = await response.json();
+        const fullText = data.reply || data.response || data.message || "No response received.";
+        
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: "assistant",
+            content: fullText,
+            timestamp: getTimestamp(),
+          };
+          return updated;
+        });
+        await saveMessage(chatId, "assistant", fullText);
+      } else {
+        // ── FIXED: buffered SSE reader — prevents split-chunk data loss ──
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+        let buffer = "";
 
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              const text = line.slice(6);
-              if (text === "[DONE]") continue;
-              const restored = text.replace(/\\n/g, "\n");
-              fullText += restored;
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-              setMessages((prev) => {
-                const updated = [...prev];
-                updated[updated.length - 1] = {
-                  role: "assistant",
-                  content: fullText,
-                  timestamp: getTimestamp(),
-                };
-                return updated;
-              });
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || ""; // keep incomplete trailing line for next read
+
+            for (const line of lines) {
+              if (line.startsWith("data: ")) {
+                const text = line.slice(6);
+                if (text === "[DONE]") continue;
+                const restored = text.replace(/\\n/g, "\n");
+                fullText += restored;
+
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = {
+                    role: "assistant",
+                    content: fullText,
+                    timestamp: getTimestamp(),
+                  };
+                  return updated;
+                });
+              }
             }
           }
         }
+        await saveMessage(chatId, "assistant", fullText);
       }
-
-      await saveMessage(chatId, "assistant", fullText);
     } catch (error: any) {
       let errorText = "I could not reach the server. Please try again.";
       if (error?.message?.includes("500"))
@@ -392,13 +410,13 @@ export default function ChatPage() {
           sidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
-        {/* Sidebar logo — 96px, static, next to app title only */}
+        {/* Sidebar logo — 48px, static, next to app title only */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de]">
           <Image
             src="/logo.png"
             alt="BourneIt Logo"
-            width={96}
-            height={96}
+            width={48}
+            height={48}
             className="object-contain flex-shrink-0"
             priority
           />
@@ -556,13 +574,13 @@ export default function ChatPage() {
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
-            // Empty state — logo 96px, static
+            // Empty state — logo 48px, static
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
               <Image
                 src="/logo.png"
                 alt="BourneIt Logo"
-                width={96}
-                height={96}
+                width={48}
+                height={48}
                 className="object-contain mb-4"
                 priority
               />
@@ -584,14 +602,14 @@ export default function ChatPage() {
                     msg.role === "user" ? "items-end" : "items-start"
                   }`}
                 >
-                  {/* Assistant marker — logo only, no text label, static 96px */}
+                  {/* Assistant marker — logo only, no text label, static 48px */}
                   {msg.role === "assistant" && (
                     <div className="mb-1.5">
                       <Image
                         src="/logo.png"
                         alt="BourneIt"
-                        width={96}
-                        height={96}
+                        width={48}
+                        height={48}
                         className="object-contain"
                       />
                     </div>
@@ -627,8 +645,8 @@ export default function ChatPage() {
                   <Image
                     src="/logo.png"
                     alt="BourneIt"
-                    width={96}
-                    height={96}
+                    width={48}
+                    height={48}
                     className="object-contain animate-breathe"
                   />
                 </div>
