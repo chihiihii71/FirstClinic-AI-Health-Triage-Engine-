@@ -8,6 +8,7 @@ import {
   LogOut, Activity, Thermometer, Wind,
   Stethoscope, Brain, HeartPulse, X,
   AlertCircle, Menu, Trash2, ArrowRight,
+  Sun, Moon,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────
@@ -24,6 +25,8 @@ interface Chat {
   type: "general" | "signs";
   created_at: string;
 }
+
+type Theme = "light" | "dark";
 
 // ─── Constants ────────────────────────────────────────────────
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -51,7 +54,7 @@ const formatMessage = (text: string) => {
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={index} className="font-semibold text-gray-900">
+        <strong key={index} className="font-semibold text-gray-900 dark:text-gray-50">
           {part.slice(2, -2)}
         </strong>
       );
@@ -63,7 +66,7 @@ const formatMessage = (text: string) => {
 // ─── Welcome Screen (Window 1) — big splash logo, 156px ─────
 function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-[#f9f9f7] px-6">
+    <div className="flex flex-col items-center justify-center h-screen bg-[#f9f9f7] dark:bg-[#111111] px-6">
       <Image
         src="/logo.png"
         alt="BourneIt Logo"
@@ -72,10 +75,10 @@ function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
         className="object-contain mb-5"
         priority
       />
-      <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-50 tracking-tight">
         BourneIt
       </h1>
-      <p className="text-xs text-teal-600 font-medium uppercase tracking-wider mt-2">
+      <p className="text-xs text-teal-600 dark:text-teal-400 font-medium uppercase tracking-wider mt-2">
         Health Triage Engine
       </p>
 
@@ -87,7 +90,7 @@ function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
         <ArrowRight size={15} />
       </button>
 
-      <p className="text-xs text-gray-400 mt-6 max-w-xs text-center leading-relaxed">
+      <p className="text-xs text-gray-400 dark:text-gray-600 mt-6 max-w-xs text-center leading-relaxed">
         For informational purposes only — always consult a qualified healthcare professional.
       </p>
     </div>
@@ -101,6 +104,9 @@ export default function ChatPage() {
   // ── Welcome screen state — persisted via localStorage ──
   const [showWelcome, setShowWelcome] = useState(true);
   const [welcomeChecked, setWelcomeChecked] = useState(false);
+
+  // ── Theme state — persisted via localStorage ──
+  const [theme, setTheme] = useState<Theme>("light");
 
   // Anonymous ID
   const [anonId, setAnonId] = useState<string>("");
@@ -143,6 +149,24 @@ export default function ChatPage() {
     }
     setWelcomeChecked(true);
   }, []);
+
+  // ── Initialize theme: stored preference, else system preference ──
+  useEffect(() => {
+    const stored = localStorage.getItem("bourneit_theme") as Theme | null;
+    const prefersDark =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initial: Theme = stored || (prefersDark ? "dark" : "light");
+    setTheme(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
+  }, []);
+
+  const toggleTheme = () => {
+    const next: Theme = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    localStorage.setItem("bourneit_theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -411,7 +435,7 @@ export default function ChatPage() {
 
   // ─── Brief blank frame while checking localStorage on mount ──
   if (!welcomeChecked) {
-    return <div className="h-screen bg-[#f9f9f7]" />;
+    return <div className="h-screen bg-[#f9f9f7] dark:bg-[#111111]" />;
   }
 
   // ─── Welcome screen (Window 1) — shown only once per browser ──
@@ -428,7 +452,7 @@ export default function ChatPage() {
 
   // ─── Main app (Window 2) ───────────────────────────────────
   return (
-    <div className="flex h-screen bg-white font-sans overflow-hidden">
+    <div className="flex h-screen bg-white dark:bg-[#0d0d0d] font-sans overflow-hidden">
 
       <style jsx global>{`
         @keyframes breathe {
@@ -442,12 +466,12 @@ export default function ChatPage() {
 
       {/* ── SIDEBAR ── */}
       <aside
-        className={`flex flex-col bg-[#f0efe9] border-r border-[#e5e4de] flex-shrink-0 transition-all duration-300 ${
+        className={`flex flex-col bg-[#f0efe9] dark:bg-[#161616] border-r border-[#e5e4de] dark:border-[#262626] flex-shrink-0 transition-all duration-300 ${
           sidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
         {/* Sidebar logo — 56px */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de]">
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de] dark:border-[#262626]">
           <Image
             src="/logo.png"
             alt="BourneIt Logo"
@@ -456,12 +480,12 @@ export default function ChatPage() {
             className="object-contain flex-shrink-0"
             priority
           />
-          <span className="font-semibold text-gray-800 text-sm">
+          <span className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
             BourneIt
           </span>
         </div>
 
-        <div className="p-3 border-b border-[#e5e4de]">
+        <div className="p-3 border-b border-[#e5e4de] dark:border-[#262626]">
           <button
             onClick={() => {
               setCurrentChatId(null);
@@ -469,7 +493,7 @@ export default function ChatPage() {
               setVitalsActive(false);
               setVitals(defaultVitals);
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-[#e5e4de] transition"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-[#e5e4de] dark:hover:bg-[#242424] transition"
           >
             <Plus size={15} />
             New Chat
@@ -480,7 +504,7 @@ export default function ChatPage() {
 
           {generalChats.length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 mb-1.5">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wider px-2 mb-1.5">
                 General
               </p>
               {generalChats.map((chat) => (
@@ -493,15 +517,15 @@ export default function ChatPage() {
                   }}
                   className={`group w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition mb-0.5 ${
                     currentChatId === chat.id
-                      ? "bg-[#e2e0d9] text-gray-900"
-                      : "text-gray-600 hover:bg-[#e8e7e1]"
+                      ? "bg-[#e2e0d9] dark:bg-[#262626] text-gray-900 dark:text-gray-100"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-[#e8e7e1] dark:hover:bg-[#1f1f1f]"
                   }`}
                 >
-                  <MessageSquare size={13} className="flex-shrink-0 text-gray-400" />
+                  <MessageSquare size={13} className="flex-shrink-0 text-gray-400 dark:text-gray-600" />
                   <span className="truncate flex-1">{chat.title}</span>
                   <span
                     onClick={(e) => deleteChat(chat.id, e)}
-                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 transition text-gray-400"
+                    className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 transition text-gray-400 dark:text-gray-600"
                   >
                     <Trash2 size={12} />
                   </span>
@@ -512,7 +536,7 @@ export default function ChatPage() {
 
           <div>
             <div className="flex items-center justify-between px-2 mb-1.5">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-wider">
                 Signs
               </p>
               <button
@@ -522,8 +546,8 @@ export default function ChatPage() {
                 }}
                 className={`text-xs flex items-center gap-1 px-2 py-0.5 rounded-md transition ${
                   vitalsBlinking
-                    ? "bg-teal-100 text-teal-600 animate-pulse"
-                    : "text-teal-600 hover:bg-teal-50"
+                    ? "bg-teal-100 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 animate-pulse"
+                    : "text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/30"
                 }`}
               >
                 <Plus size={10} />
@@ -540,32 +564,40 @@ export default function ChatPage() {
                 }}
                 className={`group w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition mb-0.5 ${
                   currentChatId === chat.id
-                    ? "bg-[#e2e0d9] text-gray-900"
-                    : "text-gray-600 hover:bg-[#e8e7e1]"
+                    ? "bg-[#e2e0d9] dark:bg-[#262626] text-gray-900 dark:text-gray-100"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-[#e8e7e1] dark:hover:bg-[#1f1f1f]"
                 }`}
               >
-                <Heart size={13} className="flex-shrink-0 text-teal-400" />
+                <Heart size={13} className="flex-shrink-0 text-teal-400 dark:text-teal-500" />
                 <span className="truncate flex-1">{chat.title}</span>
                 <span
                   onClick={(e) => deleteChat(chat.id, e)}
-                  className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 transition text-gray-400"
+                  className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-red-400 transition text-gray-400 dark:text-gray-600"
                 >
                   <Trash2 size={12} />
                 </span>
               </button>
             ))}
             {signsChats.length === 0 && (
-              <p className="text-xs text-gray-400 px-3 py-2">
+              <p className="text-xs text-gray-400 dark:text-gray-600 px-3 py-2">
                 No vitals sessions yet
               </p>
             )}
           </div>
         </div>
 
-        <div className="p-3 border-t border-[#e5e4de]">
+        {/* Theme toggle + clear history */}
+        <div className="p-3 border-t border-[#e5e4de] dark:border-[#262626] space-y-0.5">
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-500 dark:text-gray-400 hover:bg-[#e5e4de] dark:hover:bg-[#242424] transition"
+          >
+            {theme === "light" ? <Moon size={13} /> : <Sun size={13} />}
+            {theme === "light" ? "Dark mode" : "Light mode"}
+          </button>
           <button
             onClick={clearAllHistory}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 hover:text-red-400 hover:bg-[#e5e4de] transition"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-gray-400 dark:text-gray-500 hover:text-red-400 hover:bg-[#e5e4de] dark:hover:bg-[#242424] transition"
           >
             <LogOut size={13} />
             Clear all history
@@ -576,17 +608,17 @@ export default function ChatPage() {
       {/* ── MAIN AREA ── */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-[#1f1f1f] flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition"
+            className="p-1.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-md transition"
           >
             <Menu size={18} />
           </button>
 
           <div className="flex items-center gap-2">
             {vitalsActive && (
-              <span className="text-xs text-teal-600 bg-teal-50 border border-teal-100 px-2.5 py-1 rounded-full">
+              <span className="text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 border border-teal-100 dark:border-teal-900 px-2.5 py-1 rounded-full">
                 ● Vitals Active
               </span>
             )}
@@ -595,7 +627,7 @@ export default function ChatPage() {
               className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition font-medium ${
                 vitalsBlinking && !vitalsActive
                   ? "bg-teal-500 text-white animate-pulse shadow-sm"
-                  : "bg-teal-50 text-teal-600 hover:bg-teal-100 border border-teal-100"
+                  : "bg-teal-50 dark:bg-teal-950/30 text-teal-600 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-950/50 border border-teal-100 dark:border-teal-900"
               }`}
             >
               <Activity size={14} />
@@ -616,12 +648,12 @@ export default function ChatPage() {
                 className="object-contain mb-4"
                 priority
               />
-              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
                 How can I help you today?
               </h2>
-              <p className="text-gray-500 text-sm max-w-md leading-relaxed">
+              <p className="text-gray-500 dark:text-gray-500 text-sm max-w-md leading-relaxed">
                 Ask me any health question, or tap{" "}
-                <span className="text-teal-600 font-medium">Add Vitals</span>{" "}
+                <span className="text-teal-600 dark:text-teal-400 font-medium">Add Vitals</span>{" "}
                 for a personalised risk assessment.
               </p>
             </div>
@@ -650,12 +682,12 @@ export default function ChatPage() {
                   <div
                     className={`max-w-[85%] ${
                       msg.role === "user"
-                        ? "bg-gray-100 text-gray-800 px-4 py-3 rounded-2xl rounded-tr-md"
-                        : "text-gray-800"
+                        ? "bg-gray-100 dark:bg-[#1f1f1f] text-gray-800 dark:text-gray-100 px-4 py-3 rounded-2xl rounded-tr-md"
+                        : "text-gray-800 dark:text-gray-100"
                     }`}
                   >
                     {msg.flagged && (
-                      <div className="flex items-center gap-1.5 text-amber-600 text-xs mb-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
+                      <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 text-xs mb-2 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-lg border border-amber-100 dark:border-amber-900">
                         <AlertCircle size={12} />
                         Message flagged by safety filter
                       </div>
@@ -665,7 +697,7 @@ export default function ChatPage() {
                     </div>
                   </div>
 
-                  <span className="text-xs text-gray-400 mt-1.5">
+                  <span className="text-xs text-gray-400 dark:text-gray-600 mt-1.5">
                     {msg.timestamp}
                   </span>
                 </div>
@@ -698,7 +730,7 @@ export default function ChatPage() {
             onSubmit={(e) => sendMessage(e, false)}
             className="max-w-3xl mx-auto"
           >
-            <div className="flex items-end gap-3 border border-gray-200 rounded-2xl px-4 py-3 bg-white shadow-sm focus-within:border-gray-300 focus-within:shadow-md transition">
+            <div className="flex items-end gap-3 border border-gray-200 dark:border-[#262626] rounded-2xl px-4 py-3 bg-white dark:bg-[#161616] shadow-sm focus-within:border-gray-300 dark:focus-within:border-[#333333] focus-within:shadow-md transition">
               <textarea
                 ref={textareaRef}
                 value={input}
@@ -714,7 +746,7 @@ export default function ChatPage() {
                 placeholder="Ask a health question..."
                 disabled={isLoading}
                 rows={1}
-                className="flex-1 resize-none outline-none text-sm text-gray-800 placeholder-gray-400 bg-transparent max-h-40"
+                className="flex-1 resize-none outline-none text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-600 bg-transparent max-h-40"
               />
               <button
                 type="submit"
@@ -724,7 +756,7 @@ export default function ChatPage() {
                 <Send size={15} />
               </button>
             </div>
-            <p className="text-xs text-gray-400 text-center mt-2">
+            <p className="text-xs text-gray-400 dark:text-gray-600 text-center mt-2">
               For informational purposes only — always consult a qualified healthcare professional.
             </p>
           </form>
@@ -735,22 +767,22 @@ export default function ChatPage() {
       {showVitalsPanel && (
         <div className="fixed inset-0 z-50 flex">
           <div
-            className="flex-1 bg-black/10"
+            className="flex-1 bg-black/10 dark:bg-black/50"
             onClick={() => setShowVitalsPanel(false)}
           />
-          <div className="w-96 bg-white shadow-2xl flex flex-col border-l border-gray-200">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div className="w-96 bg-white dark:bg-[#161616] shadow-2xl flex flex-col border-l border-gray-200 dark:border-[#262626]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-[#1f1f1f]">
               <div>
-                <h2 className="font-semibold text-gray-800">Vital Signs</h2>
-                <p className="text-xs text-gray-400 mt-0.5">
+                <h2 className="font-semibold text-gray-800 dark:text-gray-100">Vital Signs</h2>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                   Enter your current readings for risk assessment
                 </p>
               </div>
               <button
                 onClick={() => setShowVitalsPanel(false)}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition"
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1f1f1f] rounded-lg transition"
               >
-                <X size={17} className="text-gray-400" />
+                <X size={17} className="text-gray-400 dark:text-gray-500" />
               </button>
             </div>
 
@@ -763,7 +795,7 @@ export default function ChatPage() {
                 { icon: <Wind size={13} />, label: "Respiratory Rate", name: "Respiratory_Rate", placeholder: "e.g. 18" },
               ].map((field) => (
                 <div key={field.name}>
-                  <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-1.5">
+                  <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
                     {field.icon} {field.label}
                   </label>
                   <input
@@ -777,13 +809,13 @@ export default function ChatPage() {
                       }))
                     }
                     placeholder={field.placeholder}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400/20 transition"
+                    className="w-full px-3 py-2.5 border border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#1a1a1a] focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400/20 transition"
                   />
                 </div>
               ))}
 
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
                   <Stethoscope size={13} /> On Oxygen Support?
                 </label>
                 <select
@@ -792,7 +824,7 @@ export default function ChatPage() {
                   onChange={(e) =>
                     setVitals((prev) => ({ ...prev, On_Oxygen: e.target.value }))
                   }
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-400 transition appearance-none bg-white"
+                  className="w-full px-3 py-2.5 border border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#1a1a1a] focus:outline-none focus:border-teal-400 transition appearance-none"
                 >
                   <option value="">Select...</option>
                   <option value="0">No</option>
@@ -801,7 +833,7 @@ export default function ChatPage() {
               </div>
 
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">
                   <Brain size={13} /> Level of Consciousness
                 </label>
                 <select
@@ -813,7 +845,7 @@ export default function ChatPage() {
                       Consciousness: e.target.value,
                     }))
                   }
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:border-teal-400 transition appearance-none bg-white"
+                  className="w-full px-3 py-2.5 border border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-800 dark:text-gray-100 bg-white dark:bg-[#1a1a1a] focus:outline-none focus:border-teal-400 transition appearance-none"
                 >
                   <option value="Alert">Alert</option>
                   <option value="Pain">Response to Pain</option>
@@ -823,10 +855,10 @@ export default function ChatPage() {
               </div>
             </div>
 
-            <div className="p-5 border-t border-gray-100 flex gap-3">
+            <div className="p-5 border-t border-gray-100 dark:border-[#1f1f1f] flex gap-3">
               <button
                 onClick={() => setShowVitalsPanel(false)}
-                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition"
+                className="flex-1 py-2.5 border border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#1f1f1f] transition"
               >
                 Cancel
               </button>
