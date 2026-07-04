@@ -43,15 +43,15 @@ const defaultVitals = {
 const getTimestamp = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-// ─── Welcome Screen (Window 1) ──────────────────────────────
+// ─── Welcome Screen (Window 1) — big splash logo, 156px ─────
 function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#f9f9f7] px-6">
       <Image
         src="/logo.png"
         alt="BourneIt Logo"
-        width={88}
-        height={88}
+        width={156}
+        height={156}
         className="object-contain mb-5"
         priority
       />
@@ -304,9 +304,11 @@ export default function ChatPage() {
 
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
+      // ── FIXED: buffered SSE reader — prevents split-chunk data loss ──
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let fullText = "";
+      let buffer = "";
 
       setMessages((prev) => [
         ...prev,
@@ -318,13 +320,14 @@ export default function ChatPage() {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || ""; // keep incomplete trailing line for next read
 
           for (const line of lines) {
             if (line.startsWith("data: ")) {
               const text = line.slice(6);
-              if (text === "[DONE]") break;
+              if (text === "[DONE]") continue;
               const restored = text.replace(/\\n/g, "\n");
               fullText += restored;
 
@@ -372,19 +375,30 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen bg-white font-sans overflow-hidden">
 
+      {/* Breathing animation for the logo — used only while a response is generating */}
+      <style jsx global>{`
+        @keyframes breathe {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.18); opacity: 0.65; }
+        }
+        .animate-breathe {
+          animation: breathe 1.3s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* ── SIDEBAR ── */}
       <aside
         className={`flex flex-col bg-[#f0efe9] border-r border-[#e5e4de] flex-shrink-0 transition-all duration-300 ${
           sidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
-        {/* Logo and App Title only — no description here */}
+        {/* Sidebar logo — 96px, static, next to app title only */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de]">
           <Image
             src="/logo.png"
             alt="BourneIt Logo"
-            width={22}
-            height={22}
+            width={96}
+            height={96}
             className="object-contain flex-shrink-0"
             priority
           />
@@ -412,7 +426,6 @@ export default function ChatPage() {
         {/* Chat History */}
         <div className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
 
-          {/* General chats */}
           {generalChats.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 mb-1.5">
@@ -445,7 +458,6 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Signs chats */}
           <div>
             <div className="flex items-center justify-between px-2 mb-1.5">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -498,7 +510,6 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Clear history */}
         <div className="p-3 border-t border-[#e5e4de]">
           <button
             onClick={clearAllHistory}
@@ -545,13 +556,13 @@ export default function ChatPage() {
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
-            // Empty state — logo + welcome heading only, no repeated title/description
+            // Empty state — logo 96px, static
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
               <Image
                 src="/logo.png"
                 alt="BourneIt Logo"
-                width={56}
-                height={56}
+                width={96}
+                height={96}
                 className="object-contain mb-4"
                 priority
               />
@@ -573,12 +584,16 @@ export default function ChatPage() {
                     msg.role === "user" ? "items-end" : "items-start"
                   }`}
                 >
+                  {/* Assistant marker — logo only, no text label, static 96px */}
                   {msg.role === "assistant" && (
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <Stethoscope size={14} className="text-teal-500" />
-                      <span className="text-xs font-medium text-gray-500">
-                        BourneIt Assistant
-                      </span>
+                    <div className="mb-1.5">
+                      <Image
+                        src="/logo.png"
+                        alt="BourneIt"
+                        width={96}
+                        height={96}
+                        className="object-contain"
+                      />
                     </div>
                   )}
 
@@ -606,20 +621,16 @@ export default function ChatPage() {
                 </div>
               ))}
 
-              {/* Typing indicator */}
+              {/* Loading indicator — logo only, breathing animation, no text/dots */}
               {isLoading && (
                 <div className="flex flex-col items-start">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Stethoscope size={14} className="text-teal-500" />
-                    <span className="text-xs font-medium text-gray-500">
-                      BourneIt Assistant
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 py-2">
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:100ms]" />
-                    <div className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:200ms]" />
-                  </div>
+                  <Image
+                    src="/logo.png"
+                    alt="BourneIt"
+                    width={96}
+                    height={96}
+                    className="object-contain animate-breathe"
+                  />
                 </div>
               )}
               <div ref={messagesEndRef} />
