@@ -44,14 +44,11 @@ const getTimestamp = () =>
   new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 // ─── Text Formatting Helper ───────────────────────────────────
-// Converts **bold text** from the AI into actual HTML bold text
 const formatMessage = (text: string) => {
   if (!text) return null;
-  // Split the text by **something**
   const parts = text.split(/(\*\*.*?\*\*)/g);
-  
+
   return parts.map((part, index) => {
-    // If the part is wrapped in **, remove the asterisks and make it bold
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
         <strong key={index} className="font-semibold text-gray-900">
@@ -59,7 +56,6 @@ const formatMessage = (text: string) => {
         </strong>
       );
     }
-    // Otherwise, return standard text
     return <span key={index}>{part}</span>;
   });
 };
@@ -102,7 +98,9 @@ function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
 export default function ChatPage() {
   const supabase = createClient();
 
+  // ── Welcome screen state — persisted via localStorage ──
   const [showWelcome, setShowWelcome] = useState(true);
+  const [welcomeChecked, setWelcomeChecked] = useState(false);
 
   // Anonymous ID
   const [anonId, setAnonId] = useState<string>("");
@@ -136,6 +134,14 @@ export default function ChatPage() {
     loadChats(id);
     const timer = setTimeout(() => setVitalsBlinking(false), 12000);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("bourneit_visited");
+    if (hasVisited === "true") {
+      setShowWelcome(false);
+    }
+    setWelcomeChecked(true);
   }, []);
 
   useEffect(() => {
@@ -332,11 +338,10 @@ export default function ChatPage() {
 
       const contentType = response.headers.get("content-type") || "";
 
-      // Check if the backend is returning standard JSON instead of a stream
       if (contentType.includes("application/json")) {
         const data = await response.json();
         const fullText = data.reply || data.response || data.message || "No response received.";
-        
+
         setMessages((prev) => {
           const updated = [...prev];
           updated[updated.length - 1] = {
@@ -348,7 +353,6 @@ export default function ChatPage() {
         });
         await saveMessage(chatId, "assistant", fullText);
       } else {
-        // ── FIXED: buffered SSE reader — prevents split-chunk data loss ──
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let fullText = "";
@@ -361,7 +365,7 @@ export default function ChatPage() {
 
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
-            buffer = lines.pop() || ""; // keep incomplete trailing line for next read
+            buffer = lines.pop() || "";
 
             for (const line of lines) {
               if (line.startsWith("data: ")) {
@@ -405,16 +409,27 @@ export default function ChatPage() {
   const generalChats = chats.filter((c) => c.type === "general");
   const signsChats = chats.filter((c) => c.type === "signs");
 
-  // ─── Welcome screen (Window 1) ─────────────────────────────
+  // ─── Brief blank frame while checking localStorage on mount ──
+  if (!welcomeChecked) {
+    return <div className="h-screen bg-[#f9f9f7]" />;
+  }
+
+  // ─── Welcome screen (Window 1) — shown only once per browser ──
   if (showWelcome) {
-    return <WelcomeScreen onContinue={() => setShowWelcome(false)} />;
+    return (
+      <WelcomeScreen
+        onContinue={() => {
+          localStorage.setItem("bourneit_visited", "true");
+          setShowWelcome(false);
+        }}
+      />
+    );
   }
 
   // ─── Main app (Window 2) ───────────────────────────────────
   return (
     <div className="flex h-screen bg-white font-sans overflow-hidden">
 
-      {/* Breathing animation for the logo — used only while a response is generating */}
       <style jsx global>{`
         @keyframes breathe {
           0%, 100% { transform: scale(1); opacity: 1; }
@@ -431,13 +446,13 @@ export default function ChatPage() {
           sidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
-        {/* Sidebar logo — 48px, static, next to app title only */}
+        {/* Sidebar logo — 56px */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#e5e4de]">
           <Image
             src="/logo.png"
             alt="BourneIt Logo"
-            width={48}
-            height={48}
+            width={56}
+            height={56}
             className="object-contain flex-shrink-0"
             priority
           />
@@ -446,7 +461,6 @@ export default function ChatPage() {
           </span>
         </div>
 
-        {/* New Chat */}
         <div className="p-3 border-b border-[#e5e4de]">
           <button
             onClick={() => {
@@ -462,7 +476,6 @@ export default function ChatPage() {
           </button>
         </div>
 
-        {/* Chat History */}
         <div className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
 
           {generalChats.length > 0 && (
@@ -563,7 +576,6 @@ export default function ChatPage() {
       {/* ── MAIN AREA ── */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* Top bar */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -592,16 +604,15 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Messages area */}
         <div className="flex-1 overflow-y-auto">
           {messages.length === 0 ? (
-            // Empty state — logo 48px, static
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
+              {/* Empty state logo — 56px */}
               <Image
                 src="/logo.png"
                 alt="BourneIt Logo"
-                width={48}
-                height={48}
+                width={56}
+                height={56}
                 className="object-contain mb-4"
                 priority
               />
@@ -623,14 +634,14 @@ export default function ChatPage() {
                     msg.role === "user" ? "items-end" : "items-start"
                   }`}
                 >
-                  {/* Assistant marker — logo only, no text label, static 48px */}
                   {msg.role === "assistant" && (
                     <div className="mb-1.5">
+                      {/* Assistant marker logo — 56px */}
                       <Image
                         src="/logo.png"
                         alt="BourneIt"
-                        width={48}
-                        height={48}
+                        width={56}
+                        height={56}
                         className="object-contain"
                       />
                     </div>
@@ -660,14 +671,14 @@ export default function ChatPage() {
                 </div>
               ))}
 
-              {/* Loading indicator — logo only, breathing animation, no text/dots */}
               {isLoading && (
                 <div className="flex flex-col items-start">
+                  {/* Loading/breathing logo — 56px */}
                   <Image
                     src="/logo.png"
                     alt="BourneIt"
-                    width={48}
-                    height={48}
+                    width={56}
+                    height={56}
                     className="object-contain animate-breathe"
                   />
                 </div>
@@ -677,7 +688,6 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Input area */}
         <div className="px-4 pb-5 pt-2 flex-shrink-0">
           {!isOnline && (
             <p className="text-xs text-red-400 text-center mb-2">
