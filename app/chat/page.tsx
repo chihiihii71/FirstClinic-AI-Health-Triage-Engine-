@@ -645,8 +645,8 @@ export default function ChatPage() {
                   <Image
                     src="/logo.png"
                     alt="BourneIt"
-                    width={48}
-                    height={48}
+                    width={64}
+                    height={64}
                     className="object-contain animate-breathe"
                   />
                 </div>
