@@ -1,7 +1,12 @@
 # BourneIt: Health Triage Engine
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black)](https://firstclinic-triage-ai-frontend.vercel.app)
-[![Backend](https://img.shields.io/badge/Backend-Hugging%20Face-yellow)](https://jaoooooo9-firstclinic-ai-triage-engine.hf.space)
+## 🔗 Live Demo
+
+| Service | Link |
+|----------|------|
+| 🌐 Frontend | https://your-frontend.vercel.app |
+| ⚙ Backend API | https://your-backend.onrender.com |
+| 📱 Full Application | https://your-frontend.vercel.app |
 
 ## 📸 Interface
 
@@ -42,7 +47,7 @@ BourneIt is a full-stack intelligent health triage platform that delivers access
 | **Backend** | FastAPI (Python) | `fastapi`, `uvicorn`, `pydantic` |
 | **AI / ML** | Gemini API, Scikit-learn | `google-genai`, `joblib`, `pandas` |
 | **Model Hosting** | Hugging Face | `huggingface_hub` |
-| **Infrastructure** | Vercel & HF Spaces | CI/CD Automated Deployment |
+| **Infrastructure** | Vercel, HF Spaces, Supabase| CI/CD Automated Deployment |
 | **Configuration** | Environment Secrets | `python-dotenv` |
 | **Package Managers**| npm (Frontend), pip (Backend) | System dependency management |
 
