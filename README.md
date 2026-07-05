@@ -4,13 +4,25 @@
 
 | Service | Link |
 |----------|------|
-| 🌐 Frontend | https://your-frontend.vercel.app |
-| ⚙ Backend API | https://your-backend.onrender.com |
-| 📱 Full Application | https://your-frontend.vercel.app |
+| 🌐 Frontend | [https://your-frontend.vercel.app](https://bourneit-health-triage-engine.vercel.app/) |
+| ⚙ Backend API | [https://your-backend.onrender.com](https://huggingface.co/spaces/Jaoooooo9/firstclinic-ai-triage-engine) |
+| 📱 Full Application | [https://your-frontend.vercel.app](https://bourneit-health-triage-engine.vercel.app/) |
 
-## 📸 Interface
+<div align="center">
 
-![BourneIt Interface](BourneIt.png)
+[![Live on Vercel](https://img.shields.io/badge/BourneIt-Open%20Live%20App-0d9488?style=for-the-badge&logo=vercel&logoColor=white)]([https://your-vercel-url.vercel.app](https://bourneit-health-triage-engine.vercel.app/))
+
+</div>
+
+---
+
+## Interface
+
+<div align="center">
+
+[![BourneIt Interface](docs/BourneIt.png)]([https://your-vercel-url.vercel.app](https://bourneit-health-triage-engine.vercel.app/))
+
+</div>
 
 ## 📖 About
 
