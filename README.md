@@ -31,19 +31,20 @@ BourneIt is a full-stack intelligent health triage platform that delivers access
 
 ![BourneIt System Architecture](bourneit_system_architecture.png)
 
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|:---|:---|
-| Frontend | Next.js 16, React 19, TypeScript |
-| Styling | Tailwind CSS v4 |
-| Icons | Lucide React |
-| Database | Supabase (PostgreSQL) |
-| Identity | Anonymous UUID via browser localStorage |
-| Backend | FastAPI, Uvicorn, Pydantic |
-| AI / ML | Google Gemini Flash 2.5 API, scikit-learn, joblib |
-| Model Hosting | Hugging Face Hub |
-| Deployment | Vercel (frontend), Hugging Face Spaces (backend) |
+| Category | Technology | Key Libraries / Packages |
+| :--- | :--- | :--- |
+| **Frontend** | Next.js 16, React 19 | `next`, `react`, `react-dom` |
+| **Language** | TypeScript | `typescript`, `python`, `javascript` |
+| **Styling** | Tailwind CSS v4 | `tailwindcss`, `@tailwindcss/postcss` |
+| **Icons** | Lucide React | `lucide-react` |
+| **Identity / Session** | Anonymous UUID (Local Storage) | Standard Web APIs (`crypto.randomUUID`) |
+| **Database** | Supabase (PostgreSQL) | `@supabase/supabase-js` |
+| **Backend** | FastAPI (Python) | `fastapi`, `uvicorn`, `pydantic` |
+| **AI / ML** | Gemini API, Scikit-learn | `google-genai`, `joblib`, `pandas` |
+| **Model Hosting** | Hugging Face | `huggingface_hub` |
+| **Infrastructure** | Vercel & HF Spaces | CI/CD Automated Deployment |
+| **Configuration** | Environment Secrets | `python-dotenv` |
+| **Package Managers**| npm (Frontend), pip (Backend) | System dependency management |
 
 ## ✨ Features
 
