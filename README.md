@@ -29,7 +29,7 @@ BourneIt is a full-stack intelligent health triage platform that delivers access
 
 ## 🏗️ System Architecture
 
-(bourneit-system architecture.png)
+![BourneIt System Architecture](bourneit_system_architecture.png)
 
 ## 🛠️ Tech Stack
 
