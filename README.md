@@ -86,19 +86,9 @@ When you visit BourneIt for the first time, a random UUID is generated in your b
 | Chat titles and messages | Supabase | Persistent chat history |
 | Vital signs (submitted) | Supabase (as message content) | Part of conversation history |
 
-**What is never stored:**
-
-- Your name
-- Your email address
-- Your IP address
-- Your device or location
-- Any data that could identify you as an individual
-
 **Clearing your data:**
 
 Click **Clear all history** in the sidebar to delete all your chats from Supabase. Clearing your browser's localStorage removes your anonymous ID — the next visit creates a new one and starts fresh.
-
-> BourneIt is for informational purposes only and is not a substitute for professional medical advice.
 
 
 
@@ -259,4 +249,4 @@ Open [http://localhost:3000](http://localhost:3000)
 ```
 5. Open a Pull Request
 
-
+## Disclaimer: > BourneIt is for informational purposes only and is not a substitute for professional medical advice.
