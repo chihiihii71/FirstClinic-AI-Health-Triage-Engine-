@@ -50,7 +50,7 @@ BourneIt is a full-stack intelligent health triage platform that delivers access
 | Category | Technology | Key Libraries / Packages |
 | :--- | :--- | :--- |
 | **Frontend** | Next.js 16, React 19 | `next`, `react`, `react-dom` |
-| **Language** | TypeScript, Python, JavaScript | `typescript`, `python`, `javascript` |
+| **Language** | TypeScript, Python, JavaScript, CSS | `typescript`, `python`, `javascript`, `css` |
 | **Styling** | Tailwind CSS v4 | `tailwindcss`, `@tailwindcss/postcss` |
 | **Icons** | Lucide React | `lucide-react` |
 | **Identity / Session** | Anonymous UUID (Local Storage) | Standard Web APIs (`crypto.randomUUID`) |
