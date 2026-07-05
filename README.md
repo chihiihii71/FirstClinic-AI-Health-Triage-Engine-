@@ -5,7 +5,7 @@
 
 ## 📸 Interface
 
-![BourneIt Interface](screenshot.png)
+![BourneIt Interface](BourneIt.png)
 
 ## 📖 About
 
