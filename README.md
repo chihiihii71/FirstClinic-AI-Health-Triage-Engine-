@@ -29,45 +29,7 @@ BourneIt is a full-stack intelligent health triage platform that delivers access
 
 ## 🏗️ System Architecture
 
-```mermaid
-flowchart TB
-    User(["👤 Patient"])
-
-    subgraph Frontend ["🖥️ Frontend — Vercel"]
-        Next["Next.js 16 · React 19 · TypeScript"]
-        AnonID["🔑 Anonymous ID\nbrowser localStorage UUID"]
-        Supabase["🗄️ Supabase\nPostgreSQL · Chat History"]
-    end
-
-    subgraph Backend ["⚙️ Backend — Hugging Face Spaces"]
-        FastAPI["FastAPI · Uvicorn · Pydantic"]
-        Firewall["🛡️ NextFirewall\nPrompt Injection Detection"]
-        DLModel["🧠 Deep Learning Model\nRisk Stratification\nLow · Normal · Medium · High"]
-    end
-
-    subgraph AI ["🤖 AI Layer — Google"]
-        Gemini["Gemini Flash 2.5 API\nPersonalised Medical Guidance"]
-    end
-
-    HFHub[("🤗 Hugging Face Hub\nModel Weights .joblib")]
-
-    User -->|"Message + Vitals"| Next
-    Next <-->|"anon_id · Chat History"| Supabase
-    Next <-->|"UUID stored in browser"| AnonID
-    Next -->|"POST /chat"| FastAPI
-    FastAPI --> Firewall
-    Firewall -->|"Safe ✅"| DLModel
-    Firewall -->|"Flagged 🚫"| Next
-    DLModel -->|"Risk Label"| Gemini
-    FastAPI -->|"Load on startup"| HFHub
-    Gemini -->|"Medical Guidance"| Next
-    Next -->|"Response"| User
-
-    style Frontend fill:#f0f4ff,stroke:#6366f1,color:#1e1b4b
-    style Backend fill:#f0fdf4,stroke:#16a34a,color:#14532d
-    style AI fill:#fff7ed,stroke:#ea580c,color:#431407
-    style HFHub fill:#fdf4ff,stroke:#9333ea,color:#3b0764
-```
+(bourneit-system architecture.png)
 
 ## 🛠️ Tech Stack
 
